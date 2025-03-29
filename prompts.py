@@ -6,7 +6,7 @@ PROMPTS = {
         "description": "Domyślny prompt do analizy tytułów.",
         "template": (
             "Przeanalizuj poniższą listę tytułów filmów z kanału YouTube.\n"
-            "1. Jaki jest ogólny sentyment (pozytywny, negatywny, neutralny)?\n"
+            "1. Jaki jest ogólny sentyment (pozytywny, negatywny, neutralny)? Podaj wartości procentowe dla każdego typu.\n"
             "2. Jakie są najczęstsze tematy?\n\n"
             "Lista tytułów:\n{titles}"
         ),

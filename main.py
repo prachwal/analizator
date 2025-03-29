@@ -1,12 +1,13 @@
-import sys
+import datetime
 import json
 import os
+import re  # Import do obsługi usuwania znaków specjalnych
 import shutil  # Dodaj import do obsługi usuwania folderów
 from argparse import ArgumentParser
-from typing import Optional  # Import Optional for type hints
-from youtube_api import get_youtube_video_titles, cache_youtube_data, clear_channel_folder
-from openai_analysis import analyze_titles_with_openai, save_openai_analysis_to_file
-from grok_analysis import analyze_titles_with_grok, save_grok_analysis_to_file
+from typing import Optional, List  # Import Optional for type hints
+from youtube_api import get_youtube_video_titles, cache_youtube_data
+from openai_analysis import analyze_titles_with_openai
+from grok_analysis import analyze_titles_with_grok
 from youtube_api import get_youtube_video_details, cache_youtube_video  # Import nowych funkcji
 from transcription import download_audio as download_audio_file  # Zmieniono nazwę importowanej funkcji
 
@@ -90,12 +91,103 @@ def load_channel_ids_from_file() -> dict:
     with open(CHANNEL_NAMES_FILE, "r", encoding="utf-8") as file:
         return json.load(file)
 
+def analyze_with_model(
+    model_name: str,
+    analyze_function,
+    channel_name: str,
+    titles: List[str],
+    transcriptions: List[str],
+    channel_id: str,
+    openai_tag: str,
+    metadata: Optional[List[dict]] = None,
+    model: Optional[str] = None
+):
+    """
+    Wspólna logika analizy dla modeli OpenAI i Grok.
+
+    Args:
+        model_name: Nazwa modelu (np. "OpenAI" lub "Grok").
+        analyze_function: Funkcja analizy (np. analyze_titles_with_openai lub analyze_titles_with_grok).
+        channel_name: Nazwa kanału.
+        titles: Lista tytułów filmów.
+        transcriptions: Lista transkrypcji filmów.
+        channel_id: ID kanału YouTube.
+        openai_tag: Tag promptu do użycia w analizie.
+        metadata: Lista metadanych filmów (opcjonalnie).
+        model: Model do użycia (opcjonalnie).
+    """
+    print(f"Rozpoczynanie analizy {model_name} dla kanału: {channel_name}")
+    analysis = analyze_function(
+        titles, tag=openai_tag, metadata=metadata, transcriptions=transcriptions, model=model
+    )
+    save_analysis_to_file(
+        model_name=model_name,
+        channel_name=channel_name,
+        analysis=analysis,
+        titles=titles,
+        channel_id=channel_id,
+        prompt_tag=openai_tag
+    )
+
+def save_analysis_to_file(
+    model_name: str,
+    channel_name: str,
+    analysis: str,
+    titles: List[str],
+    channel_id: str,
+    prompt_tag: str
+):
+    """
+    Wspólna logika zapisu wyników analizy do pliku.
+
+    Args:
+        model_name: Nazwa modelu (np. "OpenAI" lub "Grok").
+        channel_name: Nazwa kanału.
+        analysis: Wynik analizy.
+        titles: Lista tytułów filmów.
+        channel_id: ID kanału YouTube.
+        prompt_tag: Tag użytego prompta.
+    """
+    sanitized_channel_name = sanitize_folder_name(channel_name)
+    folder_name = os.path.join("analyses", sanitized_channel_name)
+    os.makedirs(folder_name, exist_ok=True)
+
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    file_path = os.path.join(folder_name, f"{model_name.lower()}_analysis_{prompt_tag}_{date_str}.md")
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(f"# Analiza {model_name}\n")
+        file.write(f"## Prompt: {prompt_tag}\n")
+        file.write(f"## Parametry wejściowe:\n")
+        file.write(f"- Kanał: {channel_name}\n")
+        file.write(f"- ID kanału: {channel_id}\n")
+        file.write(f"- Liczba tytułów: {len(titles)}\n\n")
+        file.write(f"## Wynik analizy:\n\n")
+        file.write(f"{analysis}\n\n")
+        file.write("## Tytuły wejściowe:\n")
+        file.write("```\n")
+        file.write("\n".join(titles))
+        file.write("\n```\n")
+    print(f"Zapisano analizę {model_name} w pliku: {file_path}")
+
+def sanitize_folder_name(name: str) -> str:
+    """
+    Usuwa znaki specjalne z nazwy folderu.
+
+    Args:
+        name: Nazwa folderu.
+
+    Returns:
+        Nazwa folderu bez znaków specjalnych.
+    """
+    return re.sub(r'[^\w\s-]', '', name).strip().replace(' ', '_')
+
 def process_channel(
     channel_id: str,
     enable_openai: bool,
     enable_grok: bool,
     refresh_cache: bool,
     download_audio: bool,
+    enable_transcription: bool,
     openai_tag: str = "default",
     openai_model: Optional[str] = None
 ):
@@ -108,6 +200,7 @@ def process_channel(
         enable_grok: Flaga włączenia analizy Grok.
         refresh_cache: Flaga wymuszająca odświeżenie cache.
         download_audio: Flaga włączenia pobierania brakujących plików audio.
+        enable_transcription: Flaga włączenia transkrypcji audio.
         openai_tag: Tag promptu do użycia w OpenAI.
         openai_model: Model OpenAI do użycia (opcjonalnie).
     """
@@ -125,21 +218,60 @@ def process_channel(
     cache_youtube_data(channel_id, channel_name, video_data, download_audio, refresh_cache)
 
     titles = [video["title"] for video in video_data]
+    transcriptions = []
+
+    # --- Transkrypcja audio ---
+    if enable_transcription:
+        print("\n--- Rozpoczynanie transkrypcji audio ---")
+        for video in video_data:
+            video_id = video["video_id"]
+            video_folder = os.path.join("channels", channel_id, video_id)
+            audio_path = os.path.join(video_folder, "audio.mp3")
+            transcription_path = os.path.join(video_folder, "transcription.txt")
+
+            # Sprawdź, czy plik audio istnieje, a jeśli nie, pobierz go
+            if not os.path.exists(audio_path):
+                print(f"Pobieranie audio dla filmu: {video['title']}")
+                download_audio_file(video_id, video["video_url"], video_folder)
+
+            # Wykonaj transkrypcję, jeśli plik nie istnieje
+            if not os.path.exists(transcription_path):
+                print(f"Rozpoczynanie transkrypcji dla filmu: {video['title']}")
+                from transcription import transcribe_audio  # Import funkcji transkrypcji
+                transcription = transcribe_audio(audio_path, transcription_path)
+                transcriptions.append(transcription)
+            else:
+                print(f"Pominięto transkrypcję, plik już istnieje: {transcription_path}")
+                with open(transcription_path, "r", encoding="utf-8") as file:
+                    transcriptions.append(file.read())
 
     # --- Analiza Tytułów ---
     print("\n--- Rozpoczynanie analizy tytułów ---")
 
     if enable_openai:
-        print(f"Rozpoczynanie analizy OpenAI dla kanału: {channel_name}")
-        openai_analysis = analyze_titles_with_openai(
-            titles, tag=openai_tag, metadata=None, transcriptions=None, model=openai_model
+        analyze_with_model(
+            model_name="OpenAI",
+            analyze_function=analyze_titles_with_openai,
+            channel_name=channel_name,
+            titles=titles,
+            transcriptions=transcriptions,
+            channel_id=channel_id,
+            openai_tag=openai_tag,
+            metadata=None,
+            model=openai_model
         )
-        save_openai_analysis_to_file(channel_name, openai_analysis, titles, channel_id, openai_tag)
 
     if enable_grok:
-        print(f"Rozpoczynanie analizy Grok dla kanału: {channel_name}")
-        grok_analysis = analyze_titles_with_grok(titles)
-        save_grok_analysis_to_file(channel_name, grok_analysis, titles, channel_id, openai_tag)
+        analyze_with_model(
+            model_name="Grok",
+            analyze_function=analyze_titles_with_grok,
+            channel_name=channel_name,
+            titles=titles,
+            transcriptions=transcriptions,
+            channel_id=channel_id,
+            openai_tag=openai_tag,
+            metadata=None
+        )
 
     print(f"Zakończono przetwarzanie kanału: {channel_name}")
 
@@ -261,7 +393,7 @@ def main():
     if args.channel_id:
         process_channel(
             args.channel_id, args.enable_openai, args.enable_grok, args.refresh_cache, args.download_audio,
-            openai_tag=args.prompt_tag, openai_model=None
+            enable_transcription=args.enable_transcription, openai_tag=args.prompt_tag, openai_model=None
         )
     elif args.video_url:
         process_video_url(
@@ -278,7 +410,7 @@ def main():
             print(f"\nPrzetwarzanie kanału {index}/{total_channels}: {channel_name}")
             process_channel(
                 channel_id, args.enable_openai, args.enable_grok, args.refresh_cache, args.download_audio,
-                openai_tag=args.prompt_tag, openai_model=None
+                enable_transcription=args.enable_transcription, openai_tag=args.prompt_tag, openai_model=None
             )
 
 if __name__ == "__main__":

@@ -172,6 +172,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-/analyses
 /channels
-channel_names.json

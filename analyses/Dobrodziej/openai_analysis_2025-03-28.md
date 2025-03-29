@@ -1,0 +1,70 @@
+# Dobrodziej - Analiza OpenAI
+
+1. **Ogólny sentyment tytułów:**
+   - Pozytywny: 40%
+   - Negatywny: 30%
+   - Neutralny: 30%
+   
+   Wiele tytułów wyraża entuzjazm lub ciekawość (np. "JESTEM OBRZYDLIWIE BOGATY!!!"), ale są także tytuły z negatywnym wydźwiękiem (np. "NOWY GOD OF WAR TO TRAGEDIA").
+
+2. **Najczęstsze tematy/słowa kluczowe:**
+   - "OUT OF ORE" - wiele tytułów związanych z tą serią gier.
+   - "ASSASSIN'S CREED" - pojawia się w kilku tytułach, co sugeruje zainteresowanie tą serią.
+   - "HYDRONEER" - także częsty temat, co wskazuje na popularność tej gry w analizowanych filmach.
+
+3. **Podsumowanie charakteru tytułów:**
+   Tytuły filmów na kanale YouTube są zróżnicowane, obejmując zarówno entuzjastyczne relacje z gier, jak i krytyczne analizy popularnych tytułów. Wiele z nich koncentruje się na konkretnych grach i seriach, co sugeruje, że kanał jest skierowany do entuzjastów gier wideo, którzy poszukują zarówno rozrywki, jak i informacji o nowych produkcjach.
+
+## Informacje wejściowe
+```
+PICK-UP ZŁOŻONY! CORAZ WIĘCEJ KUMPLI! | Drive Beyond Horizons #2
+KUPIŁEM NAJDROŻSZEGO TURA W GRZE!!! | OUT OF ORE #18
+TAJEMNICZA TELEPORTACJA
+RECENZJE ASSASSIN&#39;S CREED SHADOWS TO NIEŚMIESZNY ŻART!
+NAJLEPIEJ UKRYTE MIEJSCE DLA HODOWLI! | SCHEDULE I #2
+JESTEM OBRZYDLIWIE BOGATY!!! | OUT OF ORE #17
+POWAŻNA ODPOWIEDŹ DLA @kolekcjonerCN !!!
+LEPSZE THE LONG DRIVE!? | Drive Beyond Horizons #1
+NOWY GOD OF WAR TO TRAGEDIA
+WIELKI POCZĄTEK ZIELONEGO IMPERIUM!!! | SCHEDULE i #1
+NAJGŁĘBSZY TUNEL WYWIERCONY! | OUT OF ORE #16
+SPEEDRUN! | THE SIMS 4 #7
+ODWAŻNY PIES
+ZA DUŻO ZŁOTA!? | HYDRONEER #3
+WYBUCHOWA METODA KOPANIA!? | OUT OF ORE #15
+JAK DZIAŁAJĄ TE RURY!? | HYDRONEER #2
+TUNEL DO PIEKŁA! NOWE SUROWCE!? | OUT OF ORE #14
+UWAGA! NAJWIĘKSZY SCAM W HISTORII GIER!? WIĘKSZY NIŻ THE DAY BEFORE!?
+KTO LUBI ASSASSIN&#39;S CREED?
+TA GRA JEST ABSURDALNA! GRZECHU BAJERANT! | INZOI #2
+DRĄŻYMY TUNEL DO ŚRODKA ZIEMI! | OUT OF ORE #13
+TRAGICZNY PRZYPADEK ASSASSIN&#39;S CREED I UBOSOFTU...
+NOWE REALISTYCZNE SIMSY!? | INZOI #1
+WŚCIEKŁEM SIĘ! TRACILIŚMY TONY SUROWCÓW!? | OUT OF ORE #12
+ASSASSIN&#39;S CREED SHADOWS PIERWSZE WRAŻENIA!
+FESTIWAL HEJTU Z @Kiszak | FNAF JEST DLA DZIECI | ASSASSIN DO ŚMIECI | FUTURE GAME SHOW 2025
+KOPALNIA ZASILANA WODĄ!? | HYDRONEER #1
+TO BYŁA PROWOKACJA!
+DZIURA TAKA ŻE JA PIE....LE!!! | OUT OF ORE #11
+ZAGRAŁEM W ASSASSIN&#39;S CREED SHADOWS - JEDNAK JEST 100/100!!! | YASUKE SIMULATOR #ubisoftpartner
+Obóz Pracy D O B R O
+UBISOFT POZA SKALĄ
+FROSTPUNK ALE NA OCEANIE??? | ALL WILL FFALL
+NA PEWNO WYSTARCZY DYNAMITU??? | OUT OF ORE #10
+PRACUJ MĄDRZE - NIE CIĘŻKO
+MARKETING A OCENY? PREMIERA ASSASSIN&#39;S CREED SHADOWS!
+MAGICZNE SUPLE!
+LOCH POD DOMEM! | THE SIMS 4 #6
+NIEWOL... PRACOWNIK ZBUDOWAŁ LINIE PRODUKCYJNĄ!? | OUT OF ORE #9
+POGROMCA TARKOVA CZY ARMY??? GIGA UPDATE GRAY ZONE WARFARE!!!
+AVOWED JEST NIEBEZPIECZNE!
+KŁOPOTY! CO TEN ANDRZEJ NAROBIŁ!? | THE SIMS 4 #5
+PS5 - JEDYNY EGZEMPLARZ NA ŚWIECIE
+WYDAŁEM 100 000$ NA WIEŻYCZKI STRAŻNICZE!? (DLA BEZPIECZEŃSTWA) | OUT OF ORE #8
+EKSPLORACJI W GRACH JUŻ NIE MA A SKYRIM BYŁ LEPSZY OD WIEDŹMINA
+ODKLEJKA EA
+ŻE CO!? NIESKOŃCZONY PIASEK XD? | ROADCRAFT #2
+ECPU JUŻ JEDZIE
+NOWA GIGANTYCZNA MASZYNA!!! | OUT OF ORE #7
+PRZYKRA HISTORIA UBISOFTU!
+```
